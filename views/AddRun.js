@@ -29,29 +29,7 @@ export default class AddRun extends Component {
           }
         ]
       }
-    });
-    // await Navigation.push(this.props.componentId, {
-    //   component: {
-    //     name: 'navigation.runtracker.RunTracker',
-    //     options: {
-    //       layout: {
-
-    //       },
-    //       topBar: {
-    //         title: {
-    //           text: 'pushed',
-    //           color: '#0000ff',
-    //           fontSize: 14
-    //         },
-    //         subtitle: {
-    //           text: 'subtitle',
-    //           fontSize: 10,
-    //           color: '#00ff00'
-    //         }
-    //       }
-    //     }
-    //   }
-    // })
+    })
   }
 
   render() {
@@ -92,10 +70,8 @@ export default class AddRun extends Component {
   }
 }
 
-
 const styles = StyleSheet.create({
  container: {
-   //...StyleSheet.absoluteFillObject,
    height: 400,
    width: '100%',
    justifyContent: 'flex-end',

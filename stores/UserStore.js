@@ -23,12 +23,11 @@ export class UserStore {
           this.longitude = position.coords.longitude
           this.timestamp = position.timestamp
         },
-        error => Alert.alert(error.message),
+        error => console.log(error.message),
         {
           enableHighAccuracy: true,
           timeout: 20000,
-          maximumAge: 500,
-          distanceFilter: 1
+          distanceFilter: 10
         }
     )
   }

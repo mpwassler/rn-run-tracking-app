@@ -13,6 +13,13 @@ import { observer, inject } from "mobx-react/custom"
 import { Navigation } from 'react-native-navigation'
 import {Run} from '../models/Run'
 
+import {
+  hours,
+  minutes,
+  seconds,
+  mseconds
+} from '../util/time'
+
 @inject("store")
 @observer
 export default class RunTracker extends Component {
@@ -21,52 +28,66 @@ export default class RunTracker extends Component {
 
   constructor(props) {
     super(props)
-    this.pause = this.pause.bind(this)
+    this.finishRun = this.finishRun.bind(this)
   }
 
   componentDidMount(props) {
     this.run = new Run(this.props.store.UserStore)
     this.run.start()
-    console.log(this.run)
   }
 
-  pause() {
+  async finishRun() {
     this.run.stop()
-    console.log(this.run.points)
+    await Navigation.showModal({
+      stack: {
+        children: [
+          {
+            component: {
+              name: 'navigation.runtracker.ConfirmRun',
+              passProps: {
+                run: this.run,
+                test: "test"
+              },
+            }
+          }
+        ]
+      }
+    })
+  }
+
+  Timer(){
+
+
+      return (
+        <View style={styles.timer} >
+          <Text style={styles.time}>
+            {minutes(this.run.duration)}
+          </Text>
+          <Text style={styles.time}>:</Text>
+          <Text style={styles.time}>
+            {seconds(this.run.duration)}
+          </Text>
+          <Text style={styles.time}>:</Text>
+          <Text style={styles.time}>
+            {mseconds(this.run.duration)}
+          </Text>
+        </View>
+      )
+
   }
 
   render() {
-
-    if(this.run)  {
-      let {minutes, seconds, milliseconds, formatted} = this.run.time
-      return (
-        <View style={styles.container}>
-          <View >
-              {minutes != null &&
-                <Text style={styles.welcome}>
-                  {minutes}
-                </Text>
-              }
-
-              {seconds != null &&
-                <Text style={styles.welcome}>
-                  {seconds}
-                </Text>
-              }
-
-              {milliseconds != null &&
-                <Text style={styles.welcome}>
-                  {milliseconds}
-                </Text>
-              }
-          </View>
+    return (
+      <View style={styles.container}>
+        <View style={styles.top}>
+          {this.run && this.Timer()}
         </View>
+        <View style={styles.bottom}>
+          <Button onPress={this.finishRun} title="Finish" />
+        </View>
+      </View>
 
-      )
-    } else {
-      return <View style={styles.container}></View>
-    }
-
+    )
   }
 }
 
@@ -77,14 +98,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+  timer : {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    width: '60%'
+
   },
-  instructions: {
+  time: {
+    flex: 1,
     textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+    fontSize: 34
   },
+  top: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottom: {
+    flex: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });

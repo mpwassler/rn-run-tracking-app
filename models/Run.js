@@ -1,12 +1,13 @@
-import {observable, autorun, computed, observe} from 'mobx'
+import {observable, autorun, computed, observe, toJS} from 'mobx'
 import React, {Component} from 'react'
 import {Platform, StyleSheet, Text, View, InteractionManager} from 'react-native'
+import {measureLineString} from '../util/geospacial'
 
 export class Run {
 
   @observable tracking = false
 
-  @observable duration = 0
+  @observable duration = null
 
   @observable title = "Daily Run"
 
@@ -14,44 +15,57 @@ export class Run {
 
   @observable userStore
 
+  @observable timerStart = null
+
+  @observable timerTime = null
+
+  id = null
+
   intervalTimer
 
   locationObserver
 
-  constructor(userStore) {
+  constructor(userStore = null) {
     this.userStore = userStore
-    this.position = this.userStore.userPosition
   }
 
-  @computed get time() {
-    return this.millisecondsToTime(this.duration)
+  @computed get distance() {
+    const points = toJS(this.points)
+    return measureLineString(points)
   }
 
-  millisecondsToTime(duration) {
-    let seconds = Math.floor(duration / 100)
-    let minutes = Math.floor(duration / 6000)
-    let hours = Math.floor(duration / 360000)
-    let milliseconds = duration - (seconds * 100)
-    seconds = seconds - (minutes * 60)
-    minutes = minutes - (hours * 60)
+  @computed get geography() {
+    const points = toJS(this.points)
     return {
-      hours: `${hours < 10 ? 0 : ""}${hours}`,
-      minutes: `${minutes < 10 ? 0 : ""}${minutes}`,
-      seconds: `${seconds < 10 ? 0 : ""}${seconds}`,
-      milliseconds: `${milliseconds < 10 ? 0 : ""}${milliseconds}`,
+      "type" : "Feature",
+      "geometry" : {
+        "type" : "LineString",
+        "coordinates": points
+      },
+      "properties": {
+        "duration" : this.duration,
+        "distance" : this.distance,
+        "title" : this.title,
+      }
     }
   }
 
   observeUserPosition() {
     this.locationObserverDisposer = observe(
       this.userStore, "userPosition", position => {
-        this.points.push(position.newValue)
+        this.points.push([
+          position.newValue.longitude,
+          position.newValue.latitude
+        ])
       }
     )
   }
 
   startTimer() {
-    this.intervalTimer = setInterval(() => { this.duration++ }, 1)
+    this.timerStart = new Date()
+    this.intervalTimer = setInterval(() => {
+      this.duration = new Date() - this.timerStart
+    }, 30)
   }
 
   start() {
@@ -61,10 +75,18 @@ export class Run {
     })
   }
 
-
   stop() {
     clearInterval(this.intervalTimer)
     this.locationObserverDisposer()
+  }
+
+  static fromGeoJSON(json) {
+    let run = new Run()
+    run.points = json.geometry.coordinates
+    run.duration = json.properties.duration
+    run.id = json.properties.id
+    run.title = json.properties.title
+    return run
   }
 
 }
