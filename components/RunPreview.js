@@ -27,6 +27,7 @@ export default RunPreview = ({mapBoundingBox}) => {
       <View style={styles.container}>
       <MapView
         style={styles.map}
+        scrollEnabled={false}
         ref={ (mapRef) => mapView = mapRef }
         onMapReady={ () => {
           mapView.fitToCoordinates( bb, {

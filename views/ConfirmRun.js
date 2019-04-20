@@ -70,6 +70,9 @@ export default class RunTracker extends Component {
           <Button title="discard" onPress={() => {Navigation.dismissAllModals()}} />
           <Button title="save" onPress={() => {
             store.RunStore.saveRun(run)
+            .then(() => {
+              Navigation.dismissAllModals()
+             })
           }} />
         </View>
       </View>

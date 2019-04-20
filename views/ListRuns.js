@@ -10,9 +10,11 @@ import RunPreview from '../components/RunPreview'
 @observer
 export default class ListRuns extends Component {
 
+  @observable loading = false
+
   constructor(props) {
     super(props)
-
+    this.refresh = this.refresh.bind(this)
   }
 
   @computed get runStore() {
@@ -28,9 +30,19 @@ export default class ListRuns extends Component {
     this.props.store.RunStore.loadRuns()
   }
 
+  async refresh() {
+    this.loading = true
+    this.props.store.RunStore.loadRuns()
+    .then(() => {
+      this.loading = false
+    })
+  }
+
   render() {
     return (
       <FlatList
+        onRefresh={this.refresh}
+        refreshing={this.loading}
         data={this.runs}
         keyExtractor={(item, index) => `${item.id}`}
         renderItem={({item}) => (
