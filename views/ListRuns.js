@@ -38,6 +38,30 @@ export default class ListRuns extends Component {
     })
   }
 
+  async showRunDetail(run, props) {
+    console.log("press")
+    await Navigation.push(props.componentId, {
+      component: {
+        name: 'navigation.runtracker.RunDetail',
+        passProps: {
+          run,
+        },
+        options: {
+          layout: {
+
+          },
+          topBar: {
+            title: {
+              text: run.title,
+              color: '#0000ff',
+              fontSize: 14
+            }
+          }
+        }
+      }
+    })
+  }
+
   render() {
     return (
       <FlatList
@@ -47,7 +71,7 @@ export default class ListRuns extends Component {
         keyExtractor={(item, index) => `${item.id}`}
         renderItem={({item}) => (
           <TouchableHighlight
-          onPress={() => {} }>
+          onPress={ () => {this.showRunDetail(item, this.props)}}>
             <View style={styles.listItem}>
               <RunPreview mapBoundingBox={item.geography} />
               <Text>{item.title}</Text>
